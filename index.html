@@ -1,0 +1,1208 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>전기와 자기 · 답변 제출</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --background: #f5f7f2;
+      --surface: #ffffff;
+      --ink: #1d2a24;
+      --muted: #64736b;
+      --line: #dbe4dd;
+      --primary: #2e7652;
+      --primary-dark: #20583d;
+      --primary-soft: #e6f2e9;
+      --error: #b4473f;
+      --error-soft: #fff0ee;
+      --shadow: 0 18px 45px rgba(36, 67, 50, 0.09);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--background);
+      color: var(--ink);
+      font-family: "Noto Sans KR", "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+      word-break: keep-all;
+    }
+
+    .page-header {
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .header-inner,
+    main {
+      width: min(100% - 32px, 760px);
+      margin: 0 auto;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      border-radius: 12px;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      font-size: 20px;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.04em;
+    }
+
+    .brand-subtitle {
+      margin: 1px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .student-badge {
+      padding: 7px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--primary-dark);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .role-switch {
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #f8faf8;
+    }
+
+    .role-button {
+      min-height: 34px;
+      padding: 5px 12px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .role-button:hover:not(:disabled) { background: #eef4ef; color: var(--primary-dark); }
+    .role-button.is-active { background: var(--primary); color: #fff; }
+
+    main { padding: 44px 0 64px; }
+
+    .intro { margin-bottom: 24px; }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 6vw, 42px);
+      letter-spacing: -0.07em;
+      line-height: 1.2;
+    }
+
+    .intro p:last-child {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .card {
+      padding: clamp(22px, 5vw, 34px);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .field + .field { margin-top: 24px; }
+
+    label,
+    .field-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fcfdfc;
+      color: var(--ink);
+      font: inherit;
+      outline: none;
+      transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+
+    input {
+      min-height: 48px;
+      padding: 11px 14px;
+    }
+
+    textarea {
+      min-height: 240px;
+      padding: 14px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--primary);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(46, 118, 82, 0.12);
+    }
+
+    input[readonly],
+    textarea[readonly] {
+      background: #f8faf8;
+      cursor: default;
+    }
+
+    .hint {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .question {
+      margin: 0;
+      padding: 18px;
+      border-left: 4px solid var(--primary);
+      border-radius: 0 12px 12px 0;
+      background: var(--primary-soft);
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .answer-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .count {
+      color: var(--muted);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .count.valid { color: var(--primary); font-weight: 700; }
+    .count.invalid { color: var(--error); font-weight: 700; }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    button {
+      min-height: 48px;
+      padding: 11px 22px;
+      border: 1px solid var(--primary);
+      border-radius: 12px;
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+      transition: background 150ms ease, transform 150ms ease;
+    }
+
+    button:hover:not(:disabled) { background: var(--primary-dark); }
+    button:active:not(:disabled) { transform: translateY(1px); }
+    button:disabled { cursor: not-allowed; opacity: 0.55; }
+
+    .message {
+      margin: 18px 0 0;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .message.error {
+      border: 1px solid #f0c7c3;
+      background: var(--error-soft);
+      color: var(--error);
+    }
+
+    .message.success {
+      border: 1px solid #b9dfc3;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+    }
+
+    .submitted-view { display: none; }
+
+    .submitted-view.is-visible { display: block; }
+    .form-view.is-hidden { display: none; }
+
+    .feedback-view { display: none; }
+    .feedback-view.is-visible { display: block; }
+
+    .feedback-card {
+      padding: 16px;
+      border-radius: 14px;
+      background: var(--primary-soft);
+    }
+
+    .feedback-card + .feedback-card { margin-top: 12px; }
+
+    .feedback-card h3 {
+      margin: 0 0 8px;
+      color: var(--primary-dark);
+      font-size: 14px;
+    }
+
+    .feedback-card p {
+      margin: 0;
+      white-space: pre-wrap;
+    }
+
+    .feedback-view .detail-actions { margin-top: 24px; }
+
+    .revision-message { margin-top: 16px; }
+
+    .status-panel {
+      padding: 18px;
+      border: 1px solid #b9dfc3;
+      border-radius: 14px;
+      background: var(--primary-soft);
+    }
+
+    .status-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 10px;
+      color: var(--primary-dark);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .status-label::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+
+    .submitted-answer {
+      margin: 0;
+      white-space: pre-wrap;
+    }
+
+    .submitted-time {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .teacher-view { display: none; }
+    .teacher-view.is-visible { display: block; }
+    .student-view.is-hidden { display: none; }
+
+    .teacher-gate { display: none; }
+    .teacher-gate.is-visible { display: block; }
+
+    .gate-copy {
+      margin: 0 0 22px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .gate-title {
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: -0.06em;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -0.06em;
+    }
+
+    .section-heading p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .unread-count {
+      flex-shrink: 0;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .student-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .student-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 15px 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdfc;
+    }
+
+    .student-name {
+      font-weight: 700;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #f0f2f1;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status.submitted,
+    .status.feedback,
+    .status.revised {
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+    }
+
+    .teacher-detail { display: none; margin-top: 18px; }
+    .teacher-detail.is-visible { display: block; }
+
+    .detail-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .detail-header h2 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -0.06em;
+    }
+
+    .detail-header p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .detail-section + .detail-section { margin-top: 24px; }
+
+    .detail-section h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .submission-copy {
+      margin: 0;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #f8faf8;
+      white-space: pre-wrap;
+    }
+
+    .detail-time {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .comparison-panel {
+      min-height: 100px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fcfdfc;
+    }
+
+    .comparison-panel h4 {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .comparison-panel p {
+      margin: 0;
+      white-space: pre-wrap;
+    }
+
+    .detail-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+
+    .detail-message { margin-top: 16px; }
+
+    .screen-reader-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 520px) {
+      .header-inner { padding: 16px 0; }
+      .brand-subtitle { display: none; }
+      .student-badge { display: none; }
+      .role-button { padding-inline: 9px; }
+      main { padding-top: 32px; }
+      .actions { display: block; }
+      button { width: 100%; }
+      .role-switch button { width: auto; }
+      .section-heading { display: block; }
+      .unread-count { display: inline-flex; margin-top: 14px; }
+      .student-row { align-items: flex-start; }
+      .detail-header { display: block; }
+      .comparison { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">⚡</div>
+        <div>
+          <p class="brand-title">오늘 내가 이해한 것</p>
+          <p class="brand-subtitle">가람중학교 2학년 과학</p>
+        </div>
+      </div>
+      <div class="role-switch" aria-label="화면 선택">
+        <button id="student-role" class="role-button is-active" type="button" aria-pressed="true">학생</button>
+        <button id="teacher-role" class="role-button" type="button" aria-pressed="false">선생님</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="student-view" class="student-view">
+      <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">오늘의 과학 기록</p>
+      <h1 id="page-title">전기와 자기</h1>
+      <p>수업에서 이해한 내용을 천천히 정리해 보세요.</p>
+      </section>
+
+      <section class="card" aria-labelledby="submission-title">
+        <div class="form-view" id="form-view">
+          <h2 id="submission-title" class="screen-reader-only">학생 답변 제출</h2>
+
+          <div class="field">
+            <span class="field-label">오늘의 질문</span>
+            <p class="question">전구 두 개를 직렬로 이었을 때, 앞 전구와 뒤 전구를 지나는 전류는 어떻게 될까요? 이유도 써 주세요.</p>
+          </div>
+
+          <form id="answer-form" novalidate>
+            <div class="field">
+              <label for="student-name">이름</label>
+              <input id="student-name" name="studentName" type="text" autocomplete="name" placeholder="이름을 입력해 주세요" required>
+            </div>
+
+            <div class="field">
+              <label for="answer">나의 답변</label>
+              <textarea id="answer" name="answer" placeholder="수업에서 이해한 내용을 3~10문장으로 써 주세요." required></textarea>
+              <div class="answer-meta">
+                <p class="hint">문장 끝에 마침표(.), 물음표(?), 느낌표(!)를 붙여 주세요.</p>
+                <span id="sentence-count" class="count" aria-live="polite">문장 수 0개</span>
+              </div>
+            </div>
+
+            <div id="form-message" class="message" role="alert" hidden></div>
+
+            <div class="actions">
+              <button id="submit-button" type="submit">답변 제출하기</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="submitted-view" class="submitted-view" aria-live="polite">
+          <div class="status-panel">
+            <div id="student-status-label" class="status-label">제출 완료</div>
+            <p id="submitted-answer" class="submitted-answer"></p>
+            <p id="submitted-time" class="submitted-time"></p>
+            <div class="actions">
+              <button id="open-feedback" type="button" hidden>피드백 확인하기</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="student-feedback-view" class="feedback-view" aria-live="polite">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">선생님 피드백</p>
+              <h2>내 글을 돌아보기</h2>
+            </div>
+            <span class="status feedback">피드백 확인</span>
+          </div>
+
+          <div class="feedback-card">
+            <h3>처음 제출한 글</h3>
+            <p id="student-original-answer"></p>
+          </div>
+          <div class="feedback-card">
+            <h3>선생님 피드백</h3>
+            <p id="student-feedback"></p>
+          </div>
+          <div class="feedback-card">
+            <h3>격려 문구</h3>
+            <p id="student-encouragement"></p>
+          </div>
+
+          <form id="revision-form" class="detail-section" novalidate>
+            <div class="field">
+              <label for="revision-answer">수정한 글</label>
+              <textarea id="revision-answer" name="revisionAnswer" placeholder="선생님 피드백을 반영해 3~10문장으로 다시 써 주세요." required></textarea>
+              <div class="answer-meta">
+                <p class="hint">문장 끝에 마침표(.), 물음표(?), 느낌표(!)를 붙여 주세요.</p>
+                <span id="revision-sentence-count" class="count" aria-live="polite">문장 수 0개</span>
+              </div>
+            </div>
+
+            <div id="revision-message" class="message revision-message" role="alert" hidden></div>
+
+            <div class="detail-actions">
+              <button id="resubmit-button" type="submit">수정 글 재제출하기</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+
+    <div id="teacher-gate" class="teacher-gate" aria-labelledby="teacher-gate-title">
+      <section class="card">
+        <p class="eyebrow">관리자 화면</p>
+        <h1 id="teacher-gate-title" class="gate-title">선생님 화면 열기</h1>
+        <p class="gate-copy">관리자 비밀번호를 입력하면 학생 목록과 선생님 전용 내용을 확인할 수 있습니다.</p>
+
+        <form id="teacher-gate-form" novalidate>
+          <div class="field">
+            <label for="teacher-password">관리자 비밀번호</label>
+            <input id="teacher-password" type="password" autocomplete="off" placeholder="비밀번호를 입력해 주세요" required>
+          </div>
+
+          <div id="teacher-gate-message" class="message" role="alert" hidden></div>
+
+          <div class="actions">
+            <button type="submit">선생님 화면 열기</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div id="teacher-view" class="teacher-view" aria-labelledby="teacher-title">
+      <section class="intro">
+        <p class="eyebrow">오늘의 과학 기록</p>
+        <h1 id="teacher-title">학생 목록</h1>
+        <p>학생별 답변 제출 상태를 확인해 보세요.</p>
+      </section>
+
+      <section class="card" aria-labelledby="student-list-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="student-list-title">전기와 자기</h2>
+            <p>학생 이름과 현재 제출 상태</p>
+          </div>
+          <span id="unread-count" class="unread-count">확인하지 않은 글 0개</span>
+        </div>
+        <ul id="student-list" class="student-list" aria-live="polite"></ul>
+      </section>
+
+      <section id="teacher-detail" class="card teacher-detail" aria-labelledby="detail-student-name">
+        <div class="detail-header">
+          <div>
+            <h2 id="detail-student-name">학생 글</h2>
+            <p id="detail-status-text">학생의 제출 글을 확인하세요.</p>
+          </div>
+          <span id="detail-status" class="status">미제출</span>
+        </div>
+
+        <div class="detail-section">
+          <h3>제출 글</h3>
+          <p id="detail-submission" class="submission-copy"></p>
+          <p id="detail-time" class="detail-time"></p>
+        </div>
+
+        <div class="detail-section">
+          <h3>수정 전후 글</h3>
+          <div class="comparison">
+            <div class="comparison-panel">
+              <h4>수정 전</h4>
+              <p id="detail-before"></p>
+            </div>
+            <div class="comparison-panel">
+              <h4>수정 후</h4>
+              <p id="detail-after"></p>
+            </div>
+          </div>
+        </div>
+
+        <form id="feedback-form" class="detail-section" novalidate>
+          <div class="field">
+            <label for="feedback">피드백</label>
+            <textarea id="feedback" name="feedback" placeholder="학생의 글에 2~3문장으로 피드백을 남겨 주세요." required></textarea>
+            <div class="answer-meta">
+              <p class="hint">2~3문장으로 작성해 주세요.</p>
+              <span id="feedback-sentence-count" class="count" aria-live="polite">문장 수 0개</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="encouragement">격려 문구</label>
+            <input id="encouragement" name="encouragement" type="text" placeholder="학생에게 전할 격려를 적어 주세요." required>
+          </div>
+
+          <div id="feedback-message" class="message detail-message" role="alert" hidden></div>
+
+          <div class="detail-actions">
+            <button id="save-feedback" type="submit">피드백 저장하기</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = "feedback-site-student-submission";
+      const form = document.querySelector("#answer-form");
+      const nameInput = document.querySelector("#student-name");
+      const answerInput = document.querySelector("#answer");
+      const sentenceCount = document.querySelector("#sentence-count");
+      const formMessage = document.querySelector("#form-message");
+      const formView = document.querySelector("#form-view");
+      const submittedView = document.querySelector("#submitted-view");
+      const studentStatusLabel = document.querySelector("#student-status-label");
+      const submittedAnswer = document.querySelector("#submitted-answer");
+      const submittedTime = document.querySelector("#submitted-time");
+      const openFeedbackButton = document.querySelector("#open-feedback");
+      const studentFeedbackView = document.querySelector("#student-feedback-view");
+      const studentOriginalAnswer = document.querySelector("#student-original-answer");
+      const studentFeedback = document.querySelector("#student-feedback");
+      const studentEncouragement = document.querySelector("#student-encouragement");
+      const revisionForm = document.querySelector("#revision-form");
+      const revisionInput = document.querySelector("#revision-answer");
+      const revisionSentenceCount = document.querySelector("#revision-sentence-count");
+      const revisionMessage = document.querySelector("#revision-message");
+      const resubmitButton = document.querySelector("#resubmit-button");
+      const studentView = document.querySelector("#student-view");
+      const teacherView = document.querySelector("#teacher-view");
+      const teacherGate = document.querySelector("#teacher-gate");
+      const teacherGateForm = document.querySelector("#teacher-gate-form");
+      const teacherPasswordInput = document.querySelector("#teacher-password");
+      const teacherGateMessage = document.querySelector("#teacher-gate-message");
+      const studentRoleButton = document.querySelector("#student-role");
+      const teacherRoleButton = document.querySelector("#teacher-role");
+      const studentList = document.querySelector("#student-list");
+      const unreadCount = document.querySelector("#unread-count");
+      const studentRoster = ["하늘", "바다", "숲", "별", "구름"];
+      const ADMIN_PASSWORD = "teacher-demo";
+      let teacherUnlocked = false;
+      const teacherDetail = document.querySelector("#teacher-detail");
+      const detailStudentName = document.querySelector("#detail-student-name");
+      const detailStatusText = document.querySelector("#detail-status-text");
+      const detailStatus = document.querySelector("#detail-status");
+      const detailSubmission = document.querySelector("#detail-submission");
+      const detailTime = document.querySelector("#detail-time");
+      const detailBefore = document.querySelector("#detail-before");
+      const detailAfter = document.querySelector("#detail-after");
+      const feedbackForm = document.querySelector("#feedback-form");
+      const feedbackInput = document.querySelector("#feedback");
+      const feedbackSentenceCount = document.querySelector("#feedback-sentence-count");
+      const encouragementInput = document.querySelector("#encouragement");
+      const feedbackMessage = document.querySelector("#feedback-message");
+      const saveFeedbackButton = document.querySelector("#save-feedback");
+      let selectedStudentName = null;
+
+      function countSentences(text) {
+        const sentenceEndings = text.match(/[.!?。！？]+/g);
+        return sentenceEndings ? sentenceEndings.length : 0;
+      }
+
+      function setMessage(message) {
+        formMessage.textContent = message;
+        formMessage.hidden = !message;
+        formMessage.className = message ? "message error" : "message";
+      }
+
+      function setFeedbackMessage(message, type = "error") {
+        feedbackMessage.textContent = message;
+        feedbackMessage.hidden = !message;
+        feedbackMessage.className = message ? `message detail-message ${type}` : "message detail-message";
+      }
+
+      function setRevisionMessage(message, type = "error") {
+        revisionMessage.textContent = message;
+        revisionMessage.hidden = !message;
+        revisionMessage.className = message ? `message revision-message ${type}` : "message revision-message";
+      }
+
+      function setTeacherGateMessage(message, type = "error") {
+        teacherGateMessage.textContent = message;
+        teacherGateMessage.hidden = !message;
+        teacherGateMessage.className = message ? `message ${type}` : "message";
+      }
+
+      function updateSentenceCount() {
+        const count = countSentences(answerInput.value);
+        sentenceCount.textContent = `문장 수 ${count}개`;
+        sentenceCount.classList.toggle("valid", count >= 3 && count <= 10);
+        sentenceCount.classList.toggle("invalid", answerInput.value.trim().length > 0 && (count < 3 || count > 10));
+      }
+
+      function updateFeedbackSentenceCount() {
+        const count = countSentences(feedbackInput.value);
+        feedbackSentenceCount.textContent = `문장 수 ${count}개`;
+        feedbackSentenceCount.classList.toggle("valid", count >= 2 && count <= 3);
+        feedbackSentenceCount.classList.toggle("invalid", feedbackInput.value.trim().length > 0 && (count < 2 || count > 3));
+      }
+
+      function updateRevisionSentenceCount() {
+        const count = countSentences(revisionInput.value);
+        revisionSentenceCount.textContent = `문장 수 ${count}개`;
+        revisionSentenceCount.classList.toggle("valid", count >= 3 && count <= 10);
+        revisionSentenceCount.classList.toggle("invalid", revisionInput.value.trim().length > 0 && (count < 3 || count > 10));
+      }
+
+      function formatSubmittedTime(value) {
+        return new Intl.DateTimeFormat("ko-KR", {
+          dateStyle: "medium",
+          timeStyle: "short"
+        }).format(new Date(value));
+      }
+
+      function showSubmitted(submission) {
+        formView.classList.add("is-hidden");
+        submittedView.classList.add("is-visible");
+        studentFeedbackView.classList.remove("is-visible");
+        studentStatusLabel.textContent = submission.status || "제출 완료";
+        submittedAnswer.textContent = submission.revisedAnswer || submission.answer;
+        submittedTime.textContent = `${submission.studentName} · ${formatSubmittedTime(submission.revisedSubmittedAt || submission.submittedAt)}`;
+        openFeedbackButton.hidden = !submission.feedback;
+        openFeedbackButton.textContent = submission.feedbackRead ? "피드백 다시 보기" : "피드백 확인하기";
+      }
+
+      function showStudentFeedback(submission) {
+        if (!submission || !submission.feedback) return;
+        submittedView.classList.remove("is-visible");
+        studentFeedbackView.classList.add("is-visible");
+        studentOriginalAnswer.textContent = submission.answer;
+        studentFeedback.textContent = submission.feedback;
+        studentEncouragement.textContent = submission.encouragement || "";
+        revisionInput.value = submission.revisedAnswer || submission.answer;
+        updateRevisionSentenceCount();
+        setRevisionMessage(submission.revisedAnswer ? "수정 제출이 완료되었습니다." : "", "success");
+        revisionInput.readOnly = Boolean(submission.revisedAnswer);
+        resubmitButton.disabled = Boolean(submission.revisedAnswer);
+      }
+
+      function readSubmission() {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (!saved) return null;
+          const submission = JSON.parse(saved);
+          return submission && submission.studentName && submission.answer ? submission : null;
+        } catch (error) {
+          localStorage.removeItem(STORAGE_KEY);
+          return null;
+        }
+      }
+
+      function loadSubmission() {
+        const submission = readSubmission();
+        if (submission && submission.submittedAt) showSubmitted(submission);
+      }
+
+      function statusFor(studentName, submission) {
+        if (!submission || submission.studentName !== studentName) return "미제출";
+        if (submission.revisedAnswer) return "수정 제출";
+        if (submission.feedback) return "피드백 완료";
+        return submission.status || "제출 완료";
+      }
+
+      function statusClass(status) {
+        if (status === "제출 완료") return "submitted";
+        if (status === "피드백 완료") return "feedback";
+        if (status === "수정 제출") return "revised";
+        return "unsubmitted";
+      }
+
+      function setFeedbackFormEnabled(enabled) {
+        feedbackInput.disabled = !enabled;
+        encouragementInput.disabled = !enabled;
+        saveFeedbackButton.disabled = !enabled;
+      }
+
+      function showTeacherDetail(studentName) {
+        selectedStudentName = studentName;
+        const submission = readSubmission();
+        const hasSubmission = Boolean(submission && submission.studentName === studentName && submission.answer);
+        const status = statusFor(studentName, submission);
+
+        detailStudentName.textContent = `${studentName} 학생의 글`;
+        detailStatus.textContent = status;
+        detailStatus.className = `status ${statusClass(status)}`;
+        setFeedbackMessage("");
+
+        if (!hasSubmission) {
+          detailStatusText.textContent = "아직 제출한 글이 없습니다.";
+          detailSubmission.textContent = "아직 제출한 글이 없습니다.";
+          detailTime.textContent = "제출 시간 없음";
+          detailBefore.textContent = "아직 제출한 글이 없습니다.";
+          detailAfter.textContent = "학생이 수정 글을 제출하면 여기에 보입니다.";
+          feedbackInput.value = "";
+          encouragementInput.value = "";
+          updateFeedbackSentenceCount();
+          setFeedbackFormEnabled(false);
+        } else {
+          detailStatusText.textContent = "제출 글을 확인하고 피드백을 남겨 주세요.";
+          detailSubmission.textContent = submission.answer;
+          detailTime.textContent = `제출 시간 · ${formatSubmittedTime(submission.submittedAt)}`;
+          detailBefore.textContent = submission.answer;
+          detailAfter.textContent = submission.revisedAnswer || "아직 수정 제출된 글이 없습니다.";
+          feedbackInput.value = submission.feedback || "";
+          encouragementInput.value = submission.encouragement || "";
+          updateFeedbackSentenceCount();
+          setFeedbackFormEnabled(true);
+        }
+
+        teacherDetail.classList.add("is-visible");
+      }
+
+      function renderTeacherList() {
+        const submission = readSubmission();
+        const names = [...studentRoster];
+        if (submission && submission.studentName && !names.includes(submission.studentName)) {
+          names.push(submission.studentName);
+        }
+
+        studentList.replaceChildren();
+        names.forEach((studentName) => {
+          const status = statusFor(studentName, submission);
+          const row = document.createElement("li");
+          row.className = "student-row";
+          row.dataset.studentName = studentName;
+          row.tabIndex = 0;
+          row.setAttribute("role", "button");
+          row.setAttribute("aria-label", `${studentName} 학생 글 열기`);
+
+          const name = document.createElement("span");
+          name.className = "student-name";
+          name.textContent = studentName;
+
+          const statusBadge = document.createElement("span");
+          statusBadge.className = `status ${statusClass(status)}`;
+          statusBadge.textContent = status;
+
+          row.append(name, statusBadge);
+          studentList.append(row);
+        });
+
+        const hasUnreadSubmission = Boolean(submission && !submission.feedbackRead);
+        unreadCount.textContent = `확인하지 않은 글 ${hasUnreadSubmission ? 1 : 0}개`;
+      }
+
+      function showTeacherGate() {
+        studentView.classList.add("is-hidden");
+        teacherView.classList.remove("is-visible");
+        teacherGate.classList.add("is-visible");
+        studentRoleButton.classList.remove("is-active");
+        teacherRoleButton.classList.add("is-active");
+        studentRoleButton.setAttribute("aria-pressed", "false");
+        teacherRoleButton.setAttribute("aria-pressed", "true");
+        teacherPasswordInput.value = "";
+        setTeacherGateMessage("");
+        teacherPasswordInput.focus();
+      }
+
+      function showTeacherView() {
+        studentView.classList.add("is-hidden");
+        teacherGate.classList.remove("is-visible");
+        teacherView.classList.add("is-visible");
+        studentRoleButton.classList.remove("is-active");
+        teacherRoleButton.classList.add("is-active");
+        studentRoleButton.setAttribute("aria-pressed", "false");
+        teacherRoleButton.setAttribute("aria-pressed", "true");
+        renderTeacherList();
+      }
+
+      function setRole(role) {
+        const isTeacher = role === "teacher";
+        if (isTeacher) {
+          if (teacherUnlocked) showTeacherView();
+          else showTeacherGate();
+          return;
+        }
+
+        teacherGate.classList.remove("is-visible");
+        teacherView.classList.remove("is-visible");
+        studentView.classList.remove("is-hidden");
+        studentRoleButton.classList.add("is-active");
+        teacherRoleButton.classList.remove("is-active");
+        studentRoleButton.setAttribute("aria-pressed", "true");
+        teacherRoleButton.setAttribute("aria-pressed", "false");
+        loadSubmission();
+      }
+
+      answerInput.addEventListener("input", () => {
+        setMessage("");
+        updateSentenceCount();
+      });
+
+      teacherGateForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (teacherPasswordInput.value === ADMIN_PASSWORD) {
+          teacherUnlocked = true;
+          setTeacherGateMessage("");
+          showTeacherView();
+          return;
+        }
+
+        setTeacherGateMessage("비밀번호가 올바르지 않습니다.");
+        teacherPasswordInput.focus();
+        teacherPasswordInput.select();
+      });
+
+      feedbackInput.addEventListener("input", () => {
+        setFeedbackMessage("");
+        updateFeedbackSentenceCount();
+      });
+
+      revisionInput.addEventListener("input", () => {
+        setRevisionMessage("");
+        updateRevisionSentenceCount();
+      });
+
+      openFeedbackButton.addEventListener("click", () => {
+        const submission = readSubmission();
+        if (!submission || !submission.feedback) return;
+
+        const readSubmissionRecord = {
+          ...submission,
+          feedbackRead: true
+        };
+
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(readSubmissionRecord));
+          renderTeacherList();
+          showStudentFeedback(readSubmissionRecord);
+        } catch (error) {
+          showStudentFeedback(submission);
+        }
+      });
+
+      studentList.addEventListener("click", (event) => {
+        const row = event.target.closest(".student-row");
+        if (row) showTeacherDetail(row.dataset.studentName);
+      });
+
+      studentList.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        const row = event.target.closest(".student-row");
+        if (!row) return;
+        event.preventDefault();
+        showTeacherDetail(row.dataset.studentName);
+      });
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const studentName = nameInput.value.trim();
+        const answer = answerInput.value.trim();
+        const sentenceTotal = countSentences(answer);
+
+        if (!studentName) {
+          setMessage("이름을 입력해 주세요.");
+          nameInput.focus();
+          return;
+        }
+
+        if (sentenceTotal < 3 || sentenceTotal > 10) {
+          setMessage("답변은 3~10문장으로 작성해 주세요.");
+          answerInput.focus();
+          updateSentenceCount();
+          return;
+        }
+
+        const submission = {
+          studentName,
+          answer,
+          status: "제출 완료",
+          submittedAt: new Date().toISOString()
+        };
+
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(submission));
+          setMessage("");
+          showSubmitted(submission);
+          renderTeacherList();
+        } catch (error) {
+          setMessage("답변을 저장하지 못했습니다. 브라우저 저장 공간을 확인해 주세요.");
+        }
+      });
+
+      feedbackForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const submission = readSubmission();
+        const feedback = feedbackInput.value.trim();
+        const encouragement = encouragementInput.value.trim();
+        const feedbackSentenceTotal = countSentences(feedback);
+
+        if (!selectedStudentName || !submission || submission.studentName !== selectedStudentName || !submission.answer) {
+          setFeedbackMessage("제출한 글이 있는 학생을 선택해 주세요.");
+          return;
+        }
+
+        if (feedbackSentenceTotal < 2 || feedbackSentenceTotal > 3) {
+          setFeedbackMessage("피드백은 2~3문장으로 작성해 주세요.");
+          feedbackInput.focus();
+          updateFeedbackSentenceCount();
+          return;
+        }
+
+        if (!encouragement) {
+          setFeedbackMessage("격려 문구를 입력해 주세요.");
+          encouragementInput.focus();
+          return;
+        }
+
+        const updatedSubmission = {
+          ...submission,
+          feedback,
+          encouragement,
+          status: "피드백 완료",
+          feedbackSavedAt: new Date().toISOString()
+        };
+
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSubmission));
+          renderTeacherList();
+          showTeacherDetail(selectedStudentName);
+          setFeedbackMessage("피드백과 격려 문구를 저장했습니다.", "success");
+        } catch (error) {
+          setFeedbackMessage("피드백을 저장하지 못했습니다. 브라우저 저장 공간을 확인해 주세요.");
+        }
+      });
+
+      revisionForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const submission = readSubmission();
+        const revisedAnswer = revisionInput.value.trim();
+        const revisedSentenceTotal = countSentences(revisedAnswer);
+
+        if (!submission || !submission.feedback) {
+          setRevisionMessage("선생님 피드백을 먼저 확인해 주세요.");
+          return;
+        }
+
+        if (revisedSentenceTotal < 3 || revisedSentenceTotal > 10) {
+          setRevisionMessage("수정 글은 3~10문장으로 작성해 주세요.");
+          revisionInput.focus();
+          updateRevisionSentenceCount();
+          return;
+        }
+
+        const updatedSubmission = {
+          ...submission,
+          revisedAnswer,
+          revisedSubmittedAt: new Date().toISOString(),
+          status: "수정 제출",
+          feedbackRead: true
+        };
+
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSubmission));
+          showSubmitted(updatedSubmission);
+          renderTeacherList();
+        } catch (error) {
+          setRevisionMessage("수정 글을 저장하지 못했습니다. 브라우저 저장 공간을 확인해 주세요.");
+        }
+      });
+
+      studentRoleButton.addEventListener("click", () => setRole("student"));
+      teacherRoleButton.addEventListener("click", () => setRole("teacher"));
+
+      updateSentenceCount();
+      updateFeedbackSentenceCount();
+      updateRevisionSentenceCount();
+      loadSubmission();
+      renderTeacherList();
+    })();
+  </script>
+</body>
+</html>
